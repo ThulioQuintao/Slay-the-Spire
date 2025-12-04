@@ -16,30 +16,30 @@ int gerarEfeito(char type, int custo) {
 }
 
 
-void createCarta(Carta *c, int idx, char typeCarta, int custo) {
-    c[idx].custo = custo;
-    c[idx].type = typeCarta;
-    c[idx].effect = gerarEfeito(c[idx].type, c[idx].custo);
+void createCarta(Carta *carta, int idx, char typeCarta, int custo) {
+    carta[idx].custo = custo;
+    carta[idx].type = typeCarta;
+    carta[idx].effect = gerarEfeito(carta[idx].type, carta[idx].custo);
 }
 
-void createCartasObrigatorias(Carta *c, int *idx, char typeCarta, int cust0, int cust1, int cust2, int cust3) {
+void createCartasObrigatorias(Carta *carta, int *idx, char typeCarta, int cust0, int cust1, int cust2, int cust3) {
     for (int i = 0; i < cust0; i++) {
-        createCarta(c, *idx, typeCarta, 0);
+        createCarta(carta, *idx, typeCarta, 0);
         (*idx)++;
     }
 
     for (int i = 0; i < cust1; i++) {
-        createCarta(c, *idx, typeCarta, 1);
+        createCarta(carta, *idx, typeCarta, 1);
         (*idx)++;
     }
 
     for (int i = 0; i < cust2; i++) {
-        createCarta(c, *idx, typeCarta, 2);
+        createCarta(carta, *idx, typeCarta, 2);
         (*idx)++;
     }
 
     for (int i = 0; i < cust3; i++) {
-        createCarta(c, *idx, typeCarta, 3);
+        createCarta(carta, *idx, typeCarta, 3);
         (*idx)++;
     }
 }
@@ -53,32 +53,32 @@ void createCartasAleatorias(Carta *c, int *idx, char typeCarta, int qtd, int int
     }
 }
 
-void embaralharBaralho(Baralho *b) {
-    for (int i = 0; i < b->quantity - 1; i++) {
-        int j = i + rand() % (b->quantity - i);
+void embaralharBaralho(Baralho *baralho) {
+    for (int i = 0; i < baralho->quantity - 1; i++) {
+        int j = i + rand() % (baralho->quantity - i);
 
-        Carta temp = b->cartas[i];
-        b->cartas[i] = b->cartas[j];
-        b->cartas[j] = temp;
+        Carta temp = baralho->cartas[i];
+        baralho->cartas[i] = baralho->cartas[j];
+        baralho->cartas[j] = temp;
     }
 }
 
-void createBaralho(Baralho *b) {
+void createBaralho(Baralho *baralho) {
     int idx = 0;
     
-    createCartasObrigatorias(b -> cartas, &idx, 'A', 1, 3, 1, 1); // 6 cartas de ataque obrigatórias
-    createCartasAleatorias(b -> cartas, &idx, 'A', 4, 4); // 4 cartas aleatórias de ataque
+    createCartasObrigatorias(baralho -> cartas, &idx, 'A', 1, 3, 1, 1); // 6 cartas de ataque obrigatórias
+    createCartasAleatorias(baralho -> cartas, &idx, 'A', 4, 4); // 4 cartas aleatórias de ataque
 
-    createCartasObrigatorias(b -> cartas, &idx, 'D', 1, 3, 1, 1); // 6 cartas de defesa obrigatórias
-    createCartasAleatorias(b -> cartas, &idx, 'D', 2, 3); // 2 cartas aleatórias de defesa
+    createCartasObrigatorias(baralho -> cartas, &idx, 'D', 1, 3, 1, 1); // 6 cartas de defesa obrigatórias
+    createCartasAleatorias(baralho -> cartas, &idx, 'D', 2, 3); // 2 cartas aleatórias de defesa
 
-    createCartasObrigatorias(b -> cartas, &idx, 'E', 2, 0, 0, 0); // 2 cartas especiais obrigatórias
+    createCartasObrigatorias(baralho -> cartas, &idx, 'E', 2, 0, 0, 0); // 2 cartas especiais obrigatórias
 
     //DELETAR
         
     //
-    b->quantity = idx; 
+    baralho->quantity = idx; 
 
-    embaralharBaralho(b);
+    embaralharBaralho(baralho);
 }
 

@@ -252,11 +252,10 @@ void RenderCard(Renderer* renderer, Carta *carta, int x, int y) {
     }
 
     // fundo
-    al_draw_filled_rounded_rectangle(0, 0, CARD_WIDTH, CARD_HEIGHT,
-                                     5, 5, bg);
-    al_draw_rounded_rectangle(0, 0, CARD_WIDTH, CARD_HEIGHT,
-                              5,5, border, 16);
+    al_draw_filled_rounded_rectangle(0, 0, CARD_WIDTH, CARD_HEIGHT,5, 5, bg); //preenchimento
+    al_draw_rounded_rectangle(0, 0, CARD_WIDTH, CARD_HEIGHT,5,5, border, 16); // borda
 
+    //texto das cartas
     ALLEGRO_COLOR color = al_map_rgb(0,0,0);
     char texto[32];
 
@@ -279,14 +278,14 @@ void RenderCard(Renderer* renderer, Carta *carta, int x, int y) {
 void RenderPlayerHand(Renderer* renderer, Combate *combate) {
     Player *p = &combate->player;
 
-    int qtd = p->qtdMaoCartas;
+    int qtdCartasMao = p->qtdMaoCartas;
     int spacing = 20;
 
-    int total_width = qtd * CARD_WIDTH + (qtd - 1) * spacing;
+    int total_width = qtdCartasMao * CARD_WIDTH + (qtdCartasMao - 1) * spacing;
     int x_start = (DISPLAY_BUFFER_WIDTH - total_width) / 2;
     int y = DISPLAY_BUFFER_HEIGHT - CARD_HEIGHT;
 
-    for (int i = 0; i < qtd; i++) {
+    for (int i = 0; i < qtdCartasMao; i++) {
         int x = x_start + i * (CARD_WIDTH + spacing);
 
         int y_offset = (i == p->selectedCarta) ? -20 : 0;
@@ -300,83 +299,66 @@ void RenderEnemies(Renderer* renderer, Combate *combate) {
 
     for (int i = 0; i < count; i++) {
 
-        Inimigo *e = &combate->inimigos[i];
+        Inimigo *inimigo = &combate->inimigos[i];
 
-        if (e->base.life <= 0) continue;
+        /*if (inimigo->base.life <= 0) continue; */
 
         int x = DISPLAY_BUFFER_WIDTH - 200 - (count - 1 - i) * ENEMY_SPACING;
         int y = ENEMY_Y;
 
-        // ==========================
-        // DESENHAR CORPO DO INIMIGO
-        // ==========================
-        if (e->type == 'f') {
-            // fraco → círculo
-            al_draw_filled_circle(x, y, ENEMY_RADIUS, ENEMY_COLOR_BODY);
-            al_draw_circle(x, y, ENEMY_RADIUS, ENEMY_COLOR_BORDER, 10);
+        // Instancia o corpo e borda do ininimigo por constantes--
+        ALLEGRO_COLOR body = ENEMY_COLOR_BODY;
+        ALLEGRO_COLOR border = ENEMY_COLOR_BORDER;
 
-        } else {
-            // forte → triângulo
-            float s = ENEMY_RADIUS;
+        // corpo do inimigo
+        al_draw_filled_circle(x, y, ENEMY_RADIUS, body);
 
-            al_draw_filled_triangle(
-                x,       y - s,
-                x - s,   y + s,
-                x + s,   y + s,
-                ENEMY_COLOR_BODY
-            );
+        // borda do inimigo
+        al_draw_circle(x, y, ENEMY_RADIUS, border, 10);
 
-            al_draw_triangle(
-                x,       y - s,
-                x - s,   y + s,
-                x + s,   y + s,
-                ENEMY_COLOR_BORDER,
-                10
-            );
-        }
+       //Texto para inimigo fraco ou forte
+        const char *label;
 
-        // ==========================
-        // DESTAQUE DE SELEÇÃO
-        // ==========================
+        if (inimigo->type == 'f') {
+            label = "FRACO";
+        } else if (inimigo->type == 'F') {
+            label = "FORTE";
+        } 
+
+        al_draw_text(
+            renderer->font, //fonte usada
+            al_map_rgb(0,0,0), //cor texto
+            x, //Posição X onde o texto será desenhado
+            y - 10, //Posição Y
+            ALLEGRO_ALIGN_CENTER, //alinhamento (LEFT, CENTER, RIGHT)
+            label //texto a ser impresso
+        );
+
+        //Destacando ininimigo selecionado com borda amarela
         if (i == combate->player.selectedEnemy &&
             combate->player.selectedMode == 1) {
 
             ALLEGRO_COLOR sel = al_map_rgb(255, 255, 0);
             float s = ENEMY_RADIUS + 12;
 
-            if (e->type == 'f') {
-                // seleção do círculo
-                al_draw_circle(x, y, s, sel, 6);
-            } else {
-                // seleção do triângulo
-                al_draw_triangle(
-                    x,       y - s,
-                    x - s,   y + s,
-                    x + s,   y + s,
-                    sel,
-                    6
-                );
-            }
+            // sempre círculo agora
+            al_draw_circle(x, y, s, sel, 6);
         }
 
-        // ==========================
-        // INTENT (AÇÃO FUTURA)
-        // ==========================
-        Acao *proxima = &e->cicloJogada[e->indiceAcaoAtual];
+        // Criar quadrado que representa proxima ação inimigo
+        Acao *proxima = &inimigo->cicloJogada[inimigo->indiceAcaoAtual];
 
         ALLEGRO_COLOR cicloColor =
             (proxima->type == 'A')
             ? CICLO_COLOR_ATTACK
             : CICLO_COLOR_DEFENSE;
 
-        // caixa do intent
         al_draw_filled_rectangle(
             x - 30, y - ENEMY_RADIUS - 60,
             x + 30, y - ENEMY_RADIUS - 10,
             cicloColor
         );
 
-        // texto do intent (dano/escudo)
         char intentTxt[16];
         sprintf(intentTxt, "%d", proxima->effect);
 
@@ -389,15 +371,14 @@ void RenderEnemies(Renderer* renderer, Combate *combate) {
             intentTxt
         );
 
-        // ==========================
-        // BARRAS DE VIDA / ESCUDO
-        // ==========================
+        // Inicializa a barra de vida e escudo dos inimigos pela função
         RenderStatusBars(renderer->font,
               x - ENEMY_RADIUS, x + ENEMY_RADIUS,
               y + ENEMY_RADIUS + 20,
-              e->base.life, e->base.maxLife, e->base.shield);
+              inimigo->base.life, inimigo->base.maxLife, inimigo->base.shield);
     }
 }
+
 
 
 void RenderEnergy(Renderer* renderer, Combate *combate) {
@@ -407,6 +388,7 @@ void RenderEnergy(Renderer* renderer, Combate *combate) {
     int y = DISPLAY_BUFFER_HEIGHT - 1070;
     int xBaseImage = x + 220, xEspaçamento = 0, yBaseImage = y + 20 ;
 
+    // Inserindo imagens de energia de acordo com o que o player tem
     for(int i = 0; i < player->energy; i++) {
       al_draw_scaled_bitmap(
         renderer->energy_icon,
@@ -422,7 +404,7 @@ void RenderEnergy(Renderer* renderer, Combate *combate) {
     
     char txt[25];
     sprintf(txt, "Energia: ");
-
+    
     DrawScaledText(renderer->font, TEXT_COLOR_WHITE,
                    x + 10, y + 10, 3, 3,
                    ALLEGRO_ALIGN_LEFT, txt);
@@ -435,9 +417,9 @@ void RenderTurno(Renderer *renderer, Combate *combate)
 
     al_draw_text(
         renderer->font,
-        al_map_rgb(255, 255, 255),             // branco
-        DISPLAY_BUFFER_WIDTH / 2,              // centro do eixo x
-        20,                                    // topo da tela
+        al_map_rgb(255, 255, 255),             
+        DISPLAY_BUFFER_WIDTH / 2, // centro do eixo x
+        20, // topo da tela
         ALLEGRO_ALIGN_CENTER,
         txt
     );
@@ -447,14 +429,13 @@ void RenderTurno(Renderer *renderer, Combate *combate)
 void Render(Renderer* renderer, Combate *combate) {
   al_set_target_bitmap(renderer->display_buffer);
   RenderBackground(renderer);
-  RenderTurno(renderer, combate);
-  RenderPlayer(renderer, &combate->player,
-             PLAYER_BEGIN_X, PLAYER_BEGIN_Y, PLAYER_RADIUS);
-  RenderEnergy(renderer, combate);
-  RenderEnemies(renderer, combate);
-  RenderPlayerHand(renderer, combate);
-  RenderDeckDescarte(renderer, combate);
-  RenderDeckCompra(renderer, combate);
+  RenderTurno(renderer, combate); //renderiza o número do turno atual
+  RenderPlayer(renderer, &combate->player, PLAYER_BEGIN_X, PLAYER_BEGIN_Y, PLAYER_RADIUS); // renderiza o player
+  RenderEnergy(renderer, combate); // renderiza energia
+  RenderEnemies(renderer, combate); // renderiza inimigos
+  RenderPlayerHand(renderer, combate); // renderiza as cartas da mão do player
+  RenderDeckDescarte(renderer, combate); // renderiza o icone de descarte
+  RenderDeckCompra(renderer, combate); // renderiza o icone de compra
 
   al_set_target_backbuffer(renderer->display);
   

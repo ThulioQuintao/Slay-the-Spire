@@ -12,15 +12,9 @@ void comprarCarta(Player *p)
     for (int i = 0; i < qtdComprar; i++)
     {
         // Se a pilha de compra está vazia → recicla descarte
-        if (p->baralhoCompra.quantity == 0)
-        {
-            // Se o descarte também está vazio, não tem mais cartas
-            if (p->baralhoDescarte.quantity == 0)
-                return;
-
+        if (p->baralhoCompra.quantity == 0){
             // mover descarte → compra
-            for (int k = 0; k < p->baralhoDescarte.quantity; k++)
-            {
+            for (int k = 0; k < p->baralhoDescarte.quantity; k++){
                 p->baralhoCompra.cartas[k] = p->baralhoDescarte.cartas[k];
             }
 
@@ -31,9 +25,8 @@ void comprarCarta(Player *p)
             embaralharBaralho(&p->baralhoCompra);
         }
 
-        // Comprar 1 carta (garantido existir agora)
-        p->mao[p->qtdMaoCartas] =
-            p->baralhoCompra.cartas[p->baralhoCompra.quantity - 1];
+        // Compra 1 cart
+        p->mao[p->qtdMaoCartas] = p->baralhoCompra.cartas[p->baralhoCompra.quantity - 1];
 
         p->qtdMaoCartas++;
         p->baralhoCompra.quantity--;

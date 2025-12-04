@@ -72,7 +72,7 @@ void novoTurno(Combate *combate){
 
     //Impede a geração de dois inimigos fortes de forma recursiva
     while (combate->inimigos[0].type == 'F' && combate->inimigos[1].type == 'F') {
-        gerarInimigo(&combate->inimigos[1]); // repete até ser fraco
+        gerarInimigo(&combate->inimigos[1]); 
     }
 
     // Turno passa a ser do player
@@ -167,7 +167,7 @@ void startGame(Combate *combate){
     while (combate->inimigos[0].type == 'F' && combate->inimigos[1].type == 'F') {
         gerarInimigo(&combate->inimigos[1]);
     }
-    
+
     iniciarTurnoPlayer(&combate->player);
 }
 
@@ -186,6 +186,7 @@ void killAllEnemies(Combate *combate) {
 
 
 // PROCESSAMENTO DAS TECLAS DE SETA < e >
+
 void ProcessSetaEsquerda(Combate *c)
 {
     Player *player= &c->player;
